@@ -7,12 +7,6 @@ source "$script_dir/header.sh"
 validate_macos
 
 function cannot_setup_docker {
-    f_echo "Unfortunately, the script could not configure Docker automatically."
-    f_echo "This means that you have to change the settings in the Docker Dashboard yourself:"
-    f_echo "Enable the Virtualization Framework, Rosetta emulation and set Swap to at least 2 GiB."
-    f_echo "Restart Docker after applying the changes and then continue with the installation."
-    wait_for_user_input
-    exit 1
 }
 
 docker_settings_file="$HOME/Library/Group Containers/group.com.docker/settings.json"
