@@ -1,6 +1,16 @@
 # Container for running Vivado on M1/M2 macs
 # though it should work equally on Intel macs
 FROM --platform=linux/amd64 ubuntu:22.04
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    gnupg \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list \
+    && echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list \
+    && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import \
+    && chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+
 RUN apt-get update && apt-get upgrade -y
 
 # Fix the error of build failing due to not having the frontend installed
@@ -9,15 +19,15 @@ RUN apt-get update && apt-get upgrade -y
 # https://github.com/moby/moby/issues/4032#issuecomment-34597177
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Check and install ca-certificates earlier if Rosetta gets broken
-RUN apt -y install ca-certificates
-
 # install gui
 RUN apt-get install -y --no-install-recommends \
     dbus dbus-x11 x11-utils xorg alsa-utils mesa-utils net-tools \
     libgl1-mesa-dri gtk2-engines lxappearance fonts-droid-fallback sudo firefox \
     ubuntu-gnome-default-settings curl gnupg lxde arc-theme \
     gtk2-engines-murrine gtk2-engines-pixbuf gnome-themes-standard nano xterm
+
+RUN apt-get install -y --no-install-recommends \
+    default-jdk sbt
 
 # install dependencies for Vivado
 RUN apt-get install -y --no-install-recommends \
